@@ -1,13 +1,38 @@
 ---
 # tasks file for dashboard
+# - name: Install k8s Dashboard
+#   shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard-arm.yaml
+- name: Copy k8s Dashboard (from local)
+  copy:
+    src: ./kibernetes-dashboard.yml
+    # /Users/cosmin/bit/rak8s/roles/dashboard/files/kibernetes-dashboard.yml
+    dest: /root/kubernetes-dashboard.yml
+    mode: 0644
+
+- name: Killing k8s Dashboard
+  shell: kubectl delete -f /root/kubernetes-dashboard.yml
+
+- name: Create label for the master
+  shell: kubectl label node {{ groups['master'][0] }} dashboard=true --overwrite
+
 - name: Install k8s Dashboard
-  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/aio/deploy/recommended/kubernetes-dashboard-arm.yaml
+  shell: kubectl apply -f /root/kubernetes-dashboard.yml
 
 - name: Configure Dashboard Access
   shell: kubectl apply -f https://raw.githubusercontent.com/rak8s/rak8s/master/roles/dashboard/files/dashboard-admin.yaml
 
 - name: Force Rebuild Dashboard Pods
   shell: kubectl -n kube-system delete $(kubectl -n kube-system get pod -o name | grep dashboard)
+
+- name: Starting proxy (in background)
+  shell: kubectl proxy --address='0.0.0.0' -p 8888 --accept-hosts '.*' &
+  async: 2592000
+
+- name: Access dashboard @
+  debug:
+    msg: "http://{{ ansible_default_ipv4.address }}:8888/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login"
+  tags:
+    - print
 
 - name: Fetch kubeconfig file
   fetch:

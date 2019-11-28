@@ -1,4 +1,4 @@
-# rak8s (pronounced rackets - /ˈrækɪts/)
+# quadPi Project
 
 Stand up a Raspberry Pi based Kubernetes cluster with Ansible
 
@@ -39,15 +39,10 @@ Also, it's cheaper than a year of GKE. Plus, why not run Kubernetes in your home
 
 ## Recommendations
 
+* Since Raspbian Lite is being used it's recommended that the video memory of the Raspberry Pi 3s be [set to its lowest setting](https://www.raspberrypi.org/documentation/configuration/config-txt/memory.md) (16 MB).
 * Setup SSH key pairs so your password is not required every time Ansible runs
 
 # Stand Up Your Kubernetes Cluster
-
-## Download the latest release or clone the repo:
-
-```
-git clone https://github.com/rak8s/rak8s.git
-```
 
 ## Modify ansible.cfg and inventory
 
@@ -91,7 +86,7 @@ pik8s004   Ready     <none>    2d        v1.9.1
 
 ## Dashboard
 
-rak8s installs the non-HTTPS version of the Kubernetes dashboard. This is not recommended for production clusters but, it simplifies the setup. Access the dashboard by running:
+quadPi installs the non-HTTPS version of the Kubernetes dashboard. This is not recommended for production clusters but, it simplifies the setup. Access the dashboard by running:
 
 ```
 kubectl proxy
@@ -102,7 +97,7 @@ Then open a web browser and navigate to:
 
 # Need to Start Over?
 
-Did something go wrong? Nodes fail some process or not joined to the cluster? Break Docker Versions with apt-update? 
+Did something go wrong? Nodes fail some process or not joined to the cluster? Break Docker Versions with apt-update?
 
 Try the process again from the beginning:
 
@@ -118,12 +113,6 @@ ansible-playbook cluster.yml
 # Where to Get Help
 
 If you run into any problems please join our welcoming [Discourse](https://discourse.rak8s.io/) community. If you find a bug please open an issue and pull requests are always welcome.
-
-# Etymology
-
-**rak8s** (pronounced rackets - /ˈrækɪts/)
-
-Coined by [Kendrick Coleman](https://github.com/kacole2) on [13 Jan 2018](https://twitter.com/KendrickColeman/status/952242602690129921)
 
 # References & Credits
 

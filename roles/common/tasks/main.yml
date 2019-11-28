@@ -14,22 +14,20 @@
   register: hostname
   tags: hostname
 
-- name: set timezone to UTC
+- name: Enabling modules
+  lineinfile:
+    dest: /etc/modules
+    line: "{{ item.line }}"
+  with_items:
+    - { line: 'ip_vs' }
+    - { line: 'ip_vs_rr' }
+    - { line: 'ip_vs_wrr' }
+    - { line: 'ip_vs_sh' }
+
+- name: Set timezone to UTC
   timezone:
     name: UTC
   register: timezone
-
-# - name: gpu mem check
-#   shell: cat /boot/config.txt | grep gpu_mem
-#   changed_when: false
-#   register: gpu_mem_check
-
-# - name: reduce gpu memory
-#   lineinfile:
-#     path: /boot/config.txt
-#     line: gpu_mem=16
-#   register: gpu_mem
-#   when: gpu_mem_check.stdout == ""
 
 - name: Enabling cgroup options at boot
   copy:
@@ -49,27 +47,42 @@
     autoremove: yes
     cache_valid_time: 86400
 
-- name: apt-get upgrade
-  apt:
-    upgrade: full
-
 - name: python-apt dependency
   shell: apt-get install -y python-apt
   args:
     warn: no
 
-- name: Reboot
+# - name: apt-get upgrade
+#   apt:
+#     upgrade: full
+
+- name: Reboot (my shell version)
   shell: sleep 2 && shutdown -r now "Ansible Reboot"
   async: 1
   poll: 0
   ignore_errors: True
-  when: cmdline or timezone or hostname is changed
+  become: True
+
+# - name: Reboot (as needed)
+#   reboot:
+#     reboot_timeout: 3600
+#   when: cmdline or timezone or hostname is changed
+#   tags:
+#     - boot
+#     - shutdown
+# - name: Reboot Message
+#   debug:
+#     msg: "A reboot is required but the reboot module is a little wonky. Hopefully someone fixes this soon."
+#   when: cmdline or timezone or hostname is changed
 
 - name: Wait for Reboot
-  local_action: wait_for
-  args:
-    host: "{{ inventory_hostname }}"
+  wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
     port: 22
     delay: 15
-    timeout: 120
+    search_regex: OpenSSH
+  vars:
+    ansible_connection: local
   become: False
+  tags:
+    - wait

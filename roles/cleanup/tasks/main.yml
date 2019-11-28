@@ -1,8 +1,8 @@
 ---
 - name: "Reset Kubernetes"
-  shell: echo $(kubeadm reset && echo 'true') 
+  shell: echo $(kubeadm reset && echo 'true')
 
-- name: "Remove docker images" 
+- name: "Remove docker images"
   shell: echo $(docker rmi --force $(docker images --all -q) && echo 'true')
   become: true
 
@@ -26,7 +26,11 @@
     - docker-ce
 
 - name: "Remove pod logging"
-  shell: rm -rf /var/log/pods/* 
+  shell: rm -rf /var/log/pods/*
+  become: True
+
+- name: "Remove Flannel IP link"
+  shell: ip link delete flannel.1 | echo "Done"
   become: True
 
 - name: Reboot
@@ -34,13 +38,17 @@
   async: 1
   poll: 0
   ignore_errors: True
+  become: True
 
 - name: Wait for Reboot
-  local_action: wait_for
-  args:
-    host: "{{ inventory_hostname }}"
+  wait_for:
+    host: "{{ ansible_default_ipv4.address }}"
     port: 22
     delay: 15
-    timeout: 120
+    search_regex: OpenSSH
+  vars:
+    ansible_connection: local
   become: False
+  tags:
+    - wait
 

@@ -1,13 +1,12 @@
-[dev]
-rak8s000    ansible_host=192.168.86.200
-rak8s001    ansible_host=192.168.86.201
-rak8s002    ansible_host=192.168.86.202
+[octos]
+quad201    ansible_host=192.168.3.201
+quad202    ansible_host=192.168.3.202
+quad203    ansible_host=192.168.3.203
+quad204    ansible_host=192.168.3.204
 
-[prod]
-rak8s003    ansible_host=192.168.86.203
-rak8s004    ansible_host=192.168.86.204
-rak8s005    ansible_host=192.168.86.205
+[octos:vars]
+ansible_ssh_user=pi
+ansible_ssh_pass=uncvJ{4LymgZ4c
 
 [master]
-rak8s000
-rak8s003
+quad201    ansible_host=192.168.3.201
